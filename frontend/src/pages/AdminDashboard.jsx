@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+// This is your live backend address on the internet
+const API_BASE_URL = "https://northoaks-api.onrender.com";
+
 const AdminDashboard = () => {
   const [leads, setLeads] = useState([]);
   const [posts, setPosts] = useState([]);
@@ -17,16 +20,23 @@ const AdminDashboard = () => {
   }, [navigate]);
 
   const fetchData = () => {
-    // Fetch Leads
-    fetch('http://localhost:5000/api/leads').then(res => res.json()).then(data => setLeads(data));
-    // Fetch Posts
-    fetch('http://localhost:5000/api/posts').then(res => res.json()).then(data => setPosts(data));
+    // Fetch Leads from Live API
+    fetch(`${API_BASE_URL}/api/leads`)
+      .then(res => res.json())
+      .then(data => setLeads(data))
+      .catch(err => console.error("Error fetching leads:", err));
+
+    // Fetch Posts from Live API
+    fetch(`${API_BASE_URL}/api/posts`)
+      .then(res => res.json())
+      .then(data => setPosts(data))
+      .catch(err => console.error("Error fetching posts:", err));
   };
 
   // --- Lead Actions ---
   const handleDeleteLead = async (id) => {
-    if (window.confirm("Delete lead?")) {
-      await fetch(`http://localhost:5000/api/leads/${id}`, { method: 'DELETE' });
+    if (window.confirm("Delete lead permanently?")) {
+      await fetch(`${API_BASE_URL}/api/leads/${id}`, { method: 'DELETE' });
       fetchData();
     }
   };
@@ -34,13 +44,13 @@ const AdminDashboard = () => {
   // --- Post Actions ---
   const handlePostSubmit = async (e) => {
     e.preventDefault();
-    const response = await fetch('http://localhost:5000/api/posts', {
+    const response = await fetch(`${API_BASE_URL}/api/posts`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(newPost)
     });
     if (response.ok) {
-      alert("Insight Published!");
+      alert("Insight Published to Live Site!");
       setNewPost({ title: '', category: 'Market Update', excerpt: '' });
       fetchData();
     }
@@ -48,7 +58,7 @@ const AdminDashboard = () => {
 
   const handleDeletePost = async (id) => {
     if (window.confirm("Delete this article?")) {
-      await fetch(`http://localhost:5000/api/posts/${id}`, { method: 'DELETE' });
+      await fetch(`${API_BASE_URL}/api/posts/${id}`, { method: 'DELETE' });
       fetchData();
     }
   };
@@ -105,10 +115,10 @@ const AdminDashboard = () => {
                 <tbody className="divide-y divide-slate-100">
                   {leads.map(lead => (
                     <tr key={lead._id} className="text-sm">
-                      <td className="p-4 font-bold">{lead.name}</td>
+                      <td className="p-4 font-bold text-slate-900">{lead.name}</td>
                       <td className="p-4 text-slate-500">{lead.email}</td>
                       <td className="p-4 text-right">
-                        <button onClick={() => handleDeleteLead(lead._id)} className="text-red-500 hover:font-bold cursor-pointer">Delete</button>
+                        <button onClick={() => handleDeleteLead(lead._id)} className="text-red-500 hover:font-bold cursor-pointer transition-all">Delete</button>
                       </td>
                     </tr>
                   ))}
@@ -123,10 +133,10 @@ const AdminDashboard = () => {
                 <tbody className="divide-y divide-slate-100">
                   {posts.map(post => (
                     <tr key={post._id} className="text-sm">
-                      <td className="p-4 font-bold">{post.title}</td>
+                      <td className="p-4 font-bold text-slate-900">{post.title}</td>
                       <td className="p-4 text-amber-600 font-bold text-[10px] uppercase">{post.category}</td>
                       <td className="p-4 text-right">
-                        <button onClick={() => handleDeletePost(post._id)} className="text-red-500 hover:font-bold cursor-pointer">Delete</button>
+                        <button onClick={() => handleDeletePost(post._id)} className="text-red-500 hover:font-bold cursor-pointer transition-all">Delete</button>
                       </td>
                     </tr>
                   ))}
